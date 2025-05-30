@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 @dataclass
@@ -35,3 +35,16 @@ class ChatOutput(BaseModel):
     """Model for the chat route output."""
 
     message: str
+
+
+class ContextRailOutput(BaseModel):
+    """Model for the context rail output."""
+
+    is_answerable: bool = Field(
+        description="Indicates if the question can be answered based on the context provided."
+    )
+    response_to_user: str = Field(
+        description="""\
+A polite response to the user if unable to answer the question from the context. \
+Otherwise, empty."""
+    )

@@ -1,9 +1,16 @@
 """FastAPI app creation, main API routes."""
 
+import asyncio
+
 from fastapi import FastAPI
 
-from ai_exercise.constants import SETTINGS, chroma_client, openai_client
-from ai_exercise.llm.completions import create_prompt, get_completion
+from ai_exercise.constants import SETTINGS, chroma_client
+from ai_exercise.llm.agents import (
+    context_rail,
+    create_responder_prompt,
+    responder,
+    rewriter,
+)
 from ai_exercise.llm.embeddings import openai_ef
 from ai_exercise.loading.document_loader import (
     add_documents,
@@ -55,24 +62,35 @@ async def load_docs_route() -> LoadDocumentsOutput:
 @app.post("/chat")
 async def chat_route(chat_query: ChatQuery) -> ChatOutput:
     """Chat route to chat with the API."""
+    # Rewrite the chat query into a search query
+    print(f"Chat query: {chat_query.query}")
+    rewritten_query = await rewriter.run(chat_query.query)
+    print(f"Rewritten query: {rewritten_query}")
+
     # Get relevant chunks from the collection
     relevant_chunks = get_relevant_chunks(
-        collection=collection, query=chat_query.query, k=SETTINGS.k_neighbors
+        collection=collection, query=rewritten_query.data, k=SETTINGS.k_neighbors
     )
 
+    # TODO: Rerank the chunks based on relevance
+
     # Create prompt with context
-    prompt = create_prompt(query=chat_query.query, context=relevant_chunks)
+    prompt = create_responder_prompt(query=chat_query.query, context=relevant_chunks)
+
+    response_task = responder.run(prompt)
+    context_rail_task = context_rail.run(prompt)
 
     print(f"Prompt: {prompt}")
 
-    # Get completion from LLM
-    result = await get_completion(
-        client=openai_client,
-        prompt=prompt,
-        model=SETTINGS.openai_model,
-    )
+    # Get completion and context check from LLM concurrently
+    responder_res, context_res = await asyncio.gather(response_task, context_rail_task)
 
-    return ChatOutput(message=result)
+    # Simple conditional logic to determine if the response is answerable
+    if not context_res.data.is_answerable:
+        return ChatOutput(message=context_res.data.response_to_user)
+
+    message = responder_res.data
+    return ChatOutput(message=message)
 
 
 if __name__ == "__main__":

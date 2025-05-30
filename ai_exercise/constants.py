@@ -23,7 +23,8 @@ class Settings(BaseSettings):
         env_file = ".env"
 
     openai_api_key: SecretStr
-    openai_model: str = "gpt-4o"
+    openai_model: str = "gpt-4o-mini"
+    completions_model: str = "openai:gpt-4o-mini"
     embeddings_model: str = "text-embedding-3-small"
 
     collection_name: str = "documents"
