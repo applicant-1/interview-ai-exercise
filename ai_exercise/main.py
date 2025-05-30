@@ -8,7 +8,7 @@ from ai_exercise.llm.embeddings import openai_ef
 from ai_exercise.loading.document_loader import (
     add_documents,
     build_docs,
-    get_json_data,
+    get_json_data_list,
     split_docs,
 )
 from ai_exercise.models import (
@@ -34,8 +34,11 @@ def health_check_route() -> HealthRouteOutput:
 @app.get("/load")
 async def load_docs_route() -> LoadDocumentsOutput:
     """Route to load documents into vector store."""
-    json_data = get_json_data()
-    documents = build_docs(json_data)
+    json_data_list = get_json_data_list()
+
+    documents = []
+    for json_data in json_data_list:
+        documents.extend(build_docs(json_data))
 
     # split docs
     documents = split_docs(documents)

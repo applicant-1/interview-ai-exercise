@@ -5,6 +5,7 @@ from typing import Any
 
 import chromadb
 import requests
+import yaml
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from ai_exercise.constants import SETTINGS
@@ -12,11 +13,25 @@ from ai_exercise.loading.chunk_json import chunk_data
 from ai_exercise.models import Document
 
 
-def get_json_data() -> dict[str, Any]:
-    # Send a GET request to the URL specified in SETTINGS.DOCS_URL
-    response = requests.get(SETTINGS.docs_url)
-    json_data = response.json()
+def get_json_data(url: str) -> dict[str, Any]:
+    """Gets JSON data from the specified URL."""
+    response = requests.get(url)
     response.raise_for_status()
+    json_data = response.json()
+
+    return json_data
+
+
+def get_json_data_list() -> list[dict[str, Any]]:
+    """Loads multiple JSON data from a list of URLs."""
+    with open(SETTINGS.docs_config) as file:
+        config = yaml.safe_load(file)
+    urls = config["urls"]
+
+    json_data = []
+    for url in urls:
+        data = get_json_data(url)
+        json_data.append(data)
 
     return json_data
 
@@ -46,10 +61,14 @@ def split_docs(docs_array: list[Document]) -> list[Document]:
     return splitter.split_documents(docs_array)
 
 
-def add_documents(collection: chromadb.Collection, docs: list[Document]) -> None:
-    """Add documents to the collection"""
-    collection.add(
-        documents=[doc.page_content for doc in docs],
-        metadatas=[doc.metadata or {} for doc in docs],
-        ids=[f"doc_{i}" for i in range(len(docs))],
-    )
+def add_documents(
+    collection: chromadb.Collection, docs: list[Document], batch_size: int = 100
+) -> None:
+    """Add documents to the collection in batches to avoid exceeding token limits."""
+    for i in range(0, len(docs), batch_size):
+        batch_docs = docs[i : i + batch_size]
+        collection.add(
+            documents=[doc.page_content for doc in batch_docs],
+            metadatas=[doc.metadata or {} for doc in batch_docs],
+            ids=[f"doc_{i + j}" for j in range(len(batch_docs))],
+        )

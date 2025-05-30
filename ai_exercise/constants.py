@@ -30,8 +30,7 @@ class Settings(BaseSettings):
     chunk_size: int = 1000
     k_neighbors: int = 5
 
-    # You will want to point towards all of the specs not just this one
-    docs_url: str = "https://docs.stackone.com/openapi/646b2d607eeee7006f8898bf"
+    docs_config: str = "docs_urls.yaml"
 
 
 SETTINGS = Settings()  # type: ignore

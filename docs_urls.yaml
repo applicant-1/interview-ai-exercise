@@ -1,0 +1,8 @@
+urls:
+- https://api.eu1.stackone.com/oas/stackone.json
+- https://api.eu1.stackone.com/oas/hris.json
+- https://api.eu1.stackone.com/oas/ats.json
+- https://api.eu1.stackone.com/oas/lms.json
+- https://api.eu1.stackone.com/oas/iam.json
+- https://api.eu1.stackone.com/oas/crm.json
+- https://api.eu1.stackone.com/oas/marketing.json
