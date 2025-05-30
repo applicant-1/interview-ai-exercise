@@ -55,7 +55,7 @@ def run(eval_file: str):
     # Save updated evals back to file
     eval_output = eval_file.replace(".jsonl", "_updated.jsonl")
     click.echo(f"Saving updated evals to {eval_output}")
-    with open(eval_file, "w") as f:
+    with open(eval_output, "w") as f:
         for eval in updated_evals:
             f.write(eval.model_dump_json() + "\n")
             click.echo(f"Wrote updated eval {eval.id} to file")
