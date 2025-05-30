@@ -48,6 +48,16 @@ Run the frontend with:
 make start-app
 ```
 
+## Evaluation
+
+The project includes an evaluation CLI to help you assess the quality of the retrieval system. The evaluation script can be found at `evals/cli`.
+
+Run the evaluation script with:
+
+```bash
+make evaluate
+```
+
 ## Testing
 
 To run unit tests, run `pytest` with:

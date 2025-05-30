@@ -41,7 +41,8 @@ class ContextRailOutput(BaseModel):
     """Model for the context rail output."""
 
     is_answerable: bool = Field(
-        description="Indicates if the question can be answered based on the context provided."
+        description="""\
+Indicates if the question can be answered based on the context provided."""
     )
     response_to_user: str = Field(
         description="""\
