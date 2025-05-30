@@ -1,6 +1,6 @@
 """Generate a response using an LLM."""
 
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 
 def create_prompt(query: str, context: list[str]) -> str:
@@ -16,9 +16,9 @@ Question: {query}
 Answer:"""
 
 
-def get_completion(client: OpenAI, prompt: str, model: str) -> str:
+async def get_completion(client: AsyncOpenAI, prompt: str, model: str) -> str:
     """Get completion from OpenAI"""
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
     )

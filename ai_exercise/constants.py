@@ -1,7 +1,7 @@
 """Set up some constants for the project."""
 
 import chromadb
-from openai import OpenAI
+from openai import AsyncOpenAI
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
@@ -37,5 +37,5 @@ SETTINGS = Settings()  # type: ignore
 
 
 # clients
-openai_client = OpenAI(api_key=SETTINGS.openai_api_key.get_secret_value())
+openai_client = AsyncOpenAI(api_key=SETTINGS.openai_api_key.get_secret_value())
 chroma_client = chromadb.PersistentClient(path="./.chroma_db")

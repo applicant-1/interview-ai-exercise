@@ -53,7 +53,7 @@ async def load_docs_route() -> LoadDocumentsOutput:
 
 
 @app.post("/chat")
-def chat_route(chat_query: ChatQuery) -> ChatOutput:
+async def chat_route(chat_query: ChatQuery) -> ChatOutput:
     """Chat route to chat with the API."""
     # Get relevant chunks from the collection
     relevant_chunks = get_relevant_chunks(
@@ -66,7 +66,7 @@ def chat_route(chat_query: ChatQuery) -> ChatOutput:
     print(f"Prompt: {prompt}")
 
     # Get completion from LLM
-    result = get_completion(
+    result = await get_completion(
         client=openai_client,
         prompt=prompt,
         model=SETTINGS.openai_model,
